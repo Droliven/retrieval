@@ -1,0 +1,12 @@
+*__pycache__/
+.idea/
+
+image_embedding/lfs
+
+retrieval_testdataset/lfs
+
+wordvec/ckpt1M
+
+*.txt
+*.npy
+
