@@ -11,7 +11,8 @@
 import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
 import os
-
+from image_embedding.config import Config
+from tqdm import tqdm
 
 def dist_cosine(x, y):
     """
@@ -27,33 +28,29 @@ def dist_cosine(x, y):
     return dist
 
 
-def retrieval_from_seperate_txt_embed():
-    with open(os.path.join("../image_embedding/datas/test_txt_embed_path.txt"), "r", encoding='utf-8') as f:
-        txt_embed_path_list = f.read().splitlines()
+def retrieval_txt_embed(test_path_dir, txt_embedding_base_dir, cos_ascend_base_dir):
+    test_img_embed_all = np.load("./lfs/test_img_embed.npy")
+    with open(test_path_dir, 'r', encoding='utf-8') as f:
+        path = f.read().splitlines()
 
-    test_img_embed = np.load("./lfs/test_img_embed.npy")  # 150000, 400
+    for p in tqdm(path):
+        city = p.split("/")[0]
+        if not os.path.exists(os.path.join(cos_ascend_base_dir, city)):
+            os.makedirs(os.path.join(cos_ascend_base_dir, city))
 
-    sort_ascend_npy = np.zeros((len(test_img_embed), len(test_img_embed)))
-
-    for idx, txt_embed_path in enumerate(txt_embed_path_list):
-        txt_embed = np.load(txt_embed_path)
-        cosdis = dist_cosine(txt_embed[np.newaxis, :], test_img_embed)
-        cosdis_ascending = np.argsort(cosdis,axis=1) # 1, 1500
-        sort_ascend_npy[idx] = cosdis_ascending
-
-    np.save("./txt_img_cos_ascend.npy", sort_ascend_npy)
-
-def retrieval_from_allinone_txt_embed():
-    test_txt_embed = np.load("./test_txt_embedding.npy")
-    test_img_embed = np.load("./lfs/test_img_embed.npy")  # 150000, 400
-
-    for idx in range(test_txt_embed.shape[0]):
-        txt_embed = test_img_embed[idx]
-        cosdis = dist_cosine(txt_embed[np.newaxis, :], test_img_embed)
-
-        cosdis_ascending = np.argsort(cosdis,axis=1) # 1, 1500
+        txt_embed = np.load(os.path.join(txt_embedding_base_dir, p + '.npy'))
+        cosdis = dist_cosine(txt_embed[np.newaxis, :], test_img_embed_all)
+        cosdis_ascending = np.argsort(cosdis, axis=1)  # 1, 1500
         sort_ascend_npy = cosdis_ascending
 
-        np.save(f"./lfs/retrieval/txt_img_cos_ascend_{idx}.npy", sort_ascend_npy)
+        np.save(os.path.join(cos_ascend_base_dir, p + ".npy"), sort_ascend_npy)
 
-retrieval_from_allinone_txt_embed()
+
+
+if __name__ == '__main__':
+    cfg = Config()
+    test_path = cfg.test_path
+    txt_embedding_base_dir = cfg.txt_embedding_base_dir
+
+    cos_ascend_base_dir = r"F:\model_report_data\multimodal_image_retrieval\InstaCities1M\cos_ascend"
+    retrieval_txt_embed(test_path, txt_embedding_base_dir, cos_ascend_base_dir)

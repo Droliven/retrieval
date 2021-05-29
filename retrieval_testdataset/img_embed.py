@@ -26,6 +26,19 @@ class ImgEmbed():
         if self.cfg.device != "cpu":
             self.model = self.model.to(self.cfg.device)
 
+        model_dict = self.model.state_dict()  # 688
+
+        state = \
+        torch.load("lfs/epoch75_currloss0.6658314065760876_bestloss0.6658251436359911.pth.tar", map_location=self.cfg.device)[
+            "state_dict"]  # 344
+        # print(state.keys())
+
+        pretrained_dict = {k: v for k, v in state.items() if k in model_dict}
+
+        model_dict.update(pretrained_dict)
+
+        self.model.load_state_dict(model_dict)
+
         self.test_set = ImgDataset(self.cfg.img_base_dir, self.cfg.txt_embedding_base_dir, self.cfg.test_path)
         self.test_dataloader = DataLoader(self.test_set, batch_size=120, num_workers=self.cfg.num_workers, shuffle=False)
         print(f"test len: {self.test_set.__len__()}")

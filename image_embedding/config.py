@@ -22,6 +22,7 @@ class Config():
             self.test_batch_size = 2
             self.img_base_dir = r"F:\model_report_data\multimodal_image_retrieval\InstaCities1M\img_resized_1M\cities_instagram"  # 10 cities * 1e5 imgs = 1M, size=300*300
             self.txt_embedding_base_dir = r"F:\model_report_data\multimodal_image_retrieval\InstaCities1M\w2v_feat_vectors\cities_instagram"
+            self.cos_ascend_base_dir = r"F:\model_report_data\multimodal_image_retrieval\InstaCities1M\cos_ascend"
 
         elif self.platform == "dlw":
             self.device = "cuda:0"
@@ -31,6 +32,7 @@ class Config():
             self.test_batch_size = 120
             self.img_base_dir = r"/mnt/hdd4T/dlw_home/model_report_data/multi_modal_image_retrieval/InstaCities1M/img_resized_1M/cities_instagram"  # 10 cities * 1e5 imgs = 1M, size=300*300
             self.txt_embedding_base_dir = r"/mnt/hdd4T/dlw_home/model_report_data/multi_modal_image_retrieval/w2v_feat_vectors/cities_instagram"
+            self.cos_ascend_base_dir = r"/mnt/hdd4T/dlw_home/model_report_data/multi_modal_image_retrieval/InstaCities1M/cos_ascend"
 
 
         self.embedding_dim = 400
