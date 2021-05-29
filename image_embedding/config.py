@@ -37,19 +37,13 @@ class Config():
 
         self.ckpt_dir = r"./lfs/"
 
-        self.train_img_path = r"./datas/train_img_path.txt"
-        self.valid_img_path = r"./datas/valid_img_path.txt"
-        self.test_img_path = r"./datas/test_img_path.txt"
-
-        self.train_txt_embed_path = r"./datas/train_txt_embed_path.txt"
-        self.valid_txt_embed_path = r"./datas/valid_txt_embed_path.txt"
-        self.test_txt_embed_path = r"./datas/test_txt_embed_path.txt"
+        self.train_path = "image_embedding/datas/train_path.txt"
+        self.valid_path = r"image_embedding/datas/valid_path.txt"
+        self.test_path = r"image_embedding/datas/test_path.txt"
 
         self.lr = 1e-3
         self.lr_descent_rate = 0.1
         self.sgd_momentum = 0.9
-
-
 
         # self.lr_descent_every = 1e5
         # self.iterations = 5e5

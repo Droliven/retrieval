@@ -11,7 +11,7 @@
 
 from image_embedding.nets.embedding_net import Embedding
 from image_embedding.datas.dataset import ImgDataset
-from config import Config
+from image_embedding.config import Config
 from torch.utils.data import DataLoader
 import torch
 import torch.nn as nn
@@ -26,8 +26,8 @@ class ImgEmbed():
         if self.cfg.device != "cpu":
             self.model = self.model.to(self.cfg.device)
 
-        self.test_set = ImgDataset(self.cfg.test_img_path, self.cfg.test_txt_embed_path)
-        self.test_dataloader = DataLoader(self.test_set, batch_size=64, num_workers=self.cfg.num_workers, shuffle=False)
+        self.test_set = ImgDataset(self.cfg.img_base_dir, self.cfg.txt_embedding_base_dir, self.cfg.test_path)
+        self.test_dataloader = DataLoader(self.test_set, batch_size=120, num_workers=self.cfg.num_workers, shuffle=False)
         print(f"test len: {self.test_set.__len__()}")
 
     def embed(self):
@@ -49,10 +49,10 @@ class ImgEmbed():
         np.save(os.path.join(self.cfg.ckpt_dir, "test_img_embed.npy"), img_embed_npy)
 
 if __name__ == "__main__":
-    # embed = ImgEmbed()
-    # embed.embed()
+    embed = ImgEmbed()
+    embed.embed()
 
-    test_embed = np.load("./lfs/test_img_embed.npy")
+    # test_embed = np.load("./lfs/test_img_embed.npy")
 
     pass
 

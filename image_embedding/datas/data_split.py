@@ -31,19 +31,19 @@ def split_imgs(base_dir):
         test_idx = idx[int(len(images) * (train_factor + valid_factor)):]
 
         train_data = [os.path.join(base_dir, c, img) for img in images[train_idx]]
-        with open("train_img_path.txt", "a+", encoding='utf-8') as f:
+        with open("train_path.txt", "a+", encoding='utf-8') as f:
             f.write("\n".join(train_data))
             if ci != len(cities) - 1:
                 f.write("\n")
 
         valid_data = [os.path.join(base_dir, c, img) for img in images[valid_idx]]
-        with open("valid_img_path.txt", "a+", encoding='utf-8') as f:
+        with open("valid_path.txt", "a+", encoding='utf-8') as f:
             f.write("\n".join(valid_data))
             if ci != len(cities) - 1:
                 f.write("\n")
 
         test_data = [os.path.join(base_dir, c, img) for img in images[test_idx]]
-        with open("test_img_path.txt", "a+", encoding='utf-8') as f:
+        with open("test_path.txt", "a+", encoding='utf-8') as f:
             f.write("\n".join(test_data))
             if ci != len(cities) - 1:
                 f.write("\n")
@@ -81,13 +81,20 @@ def split_caption_txt(caption_txt):
             f.write("\n".join(caption_txt_line_list))
 
 
-# img_base_dir = os.path.join(r"F:\model_report_data\multimodal_image_retrieval\InstaCities1M\img_resized_1M\cities_instagram")  # 10 cities * 1e5 imgs = 1M, size=300*300
-# split_imgs(img_base_dir)
-#
-# txt_embedding_base_dir = r"F:\model_report_data\multimodal_image_retrieval\InstaCities1M\w2v_feat_vectors\cities_instagram"
-# split_corresponding_txt_embedding(txt_embedding_base_dir)
-#
-# split_caption_txt(r"F:\model_report_data\multimodal_image_retrieval\InstaCities1M\captions_resized_1M\cities_instagram")
+if __name__ == '__main__':
+    for mode in ['train', 'valid', 'test']:
+        with open(os.path.join(rf"C:\Users\Drolab\Desktop\{mode}_img_path.txt"), 'r', encoding='utf-8') as f:
+            data = f.read().splitlines()
+
+        data_city_id_list = []
+        for d in data:
+            city_id = d.split("/")[-2:]
+            data_city_id_list.append("/".join(city_id)[:-4])
+
+        with open(rf"{mode}_img_path.txt", 'a+', encoding='utf-8') as f:
+            f.write("\n".join(data_city_id_list))
+    pass
+
 
 
 

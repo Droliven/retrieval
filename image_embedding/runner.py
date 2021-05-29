@@ -13,9 +13,9 @@ import os
 import torch
 import torch.nn as nn
 from torch.utils.tensorboard import SummaryWriter
-from nets import Embedding
-from datas import ImgDataset
-from config import Config
+from image_embedding.nets.embedding_net import Embedding
+from image_embedding.datas.dataset import ImgDataset
+from image_embedding.config import Config
 from torch.utils.data import DataLoader
 
 def embedding_loss(pred, gt):
@@ -50,9 +50,9 @@ class Runner():
 
         self.optimizer = torch.optim.SGD(self.model.parameters(), lr=self.cfg.lr, momentum=self.cfg.sgd_momentum)
 
-        self.train_set = ImgDataset(self.cfg.train_img_path, self.cfg.train_txt_embed_path)
-        self.valid_set = ImgDataset(self.cfg.valid_img_path, self.cfg.valid_txt_embed_path)
-        # self.test_set = ImgDataset(self.cfg.test_img_path, self.cfg.test_txt_embed_path)
+        self.train_set = ImgDataset(self.cfg.img_base_dir, self.cfg.txt_embedding_base_dir, self.cfg.train_path)
+        self.valid_set = ImgDataset(self.cfg.img_base_dir, self.cfg.txt_embedding_base_dir, self.cfg.valid_path)
+        # self.test_set = ImgDataset(self.cfg.img_base_dir, self.cfg.txt_embedding_base_dir, self.cfg.test_path)
         self.train_dataloader = DataLoader(self.train_set, batch_size=self.cfg.train_batch_size, num_workers=self.cfg.num_workers, shuffle=True, pin_memory=True, drop_last=True)
         self.valid_dataloader = DataLoader(self.valid_set, batch_size=self.cfg.valid_batch_size, num_workers=self.cfg.num_workers, shuffle=False, pin_memory=True, drop_last=True)
         # self.test_dataloader = DataLoader(self.test_set, batch_size=self.cfg.test_batch_size, num_workers=self.cfg.num_workers, shuffle=False, pin_memory=True, drop_last=True)
@@ -114,27 +114,6 @@ class Runner():
             if epo % self.cfg.lr_descent_every == 0:
                 # descent lr
                 self.lr = lr_decay(self.optimizer, self.lr, self.cfg.lr_descent_rate)
-
-
-    def test(self):
-        # eval
-        self.model.eval()
-        avg_test_loss = 0
-        for idx, (img, txt_emb) in enumerate(self.test_dataloader):
-            if self.cfg.device != "cpu":
-                img = img.float().to(self.cfg.device)
-                txt_emb = txt_emb.float().to(self.cfg.device)
-
-            with torch.no_grad():
-                out_emb = self.model(img)
-                out_emb = nn.Sigmoid()(out_emb)
-                txt_emb = nn.Sigmoid()(txt_emb)
-
-                loss_test = embedding_loss(out_emb, txt_emb)
-                avg_test_loss += loss_test.cpu().data.numpy()
-
-        avg_test_loss = avg_test_loss / (idx)
-        print(f"avg_test_loss: {avg_test_loss}")
 
 
     def save(self, epoch, best_loss, curr_loss):
