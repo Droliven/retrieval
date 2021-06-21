@@ -11,7 +11,8 @@
 
 import getpass
 
-class Config():
+
+class Config:
     def __init__(self):
         self.platform = getpass.getuser()
         if self.platform == "Drolab":
@@ -24,24 +25,29 @@ class Config():
             self.txt_embedding_base_dir = r"F:\model_report_data\multimodal_image_retrieval\InstaCities1M\w2v_feat_vectors\cities_instagram"
             self.cos_ascend_base_dir = r"F:\model_report_data\multimodal_image_retrieval\InstaCities1M\cos_ascend"
 
+        elif self.platform == "liuzhian":
+            self.device = "cuda:0"
+            self.num_workers = 0
+            self.train_batch_size = 2
+            self.valid_batch_size = 2
+            self.test_batch_size = 2
+            self.ds_root = r"/home/liuzhian/hdd4T/datasets/CN_insta_50K"  # 10 cities * 1e5 imgs = 1M, size=300*300
+            self.cos_ascend_base_dir = r"F:\model_report_data\multimodal_image_retrieval\InstaCities1M\cos_ascend"
+
         elif self.platform == "dlw":
             self.device = "cuda:0"
             self.num_workers = 4
-            self.train_batch_size = 120
-            self.valid_batch_size = 120
-            self.test_batch_size = 120
+            self.train_batch_size = 256
+            self.valid_batch_size = 256
+            self.test_batch_size = 128
             self.img_base_dir = r"/mnt/hdd4T/dlw_home/model_report_data/multi_modal_image_retrieval/InstaCities1M/img_resized_1M/cities_instagram"  # 10 cities * 1e5 imgs = 1M, size=300*300
             self.txt_embedding_base_dir = r"/mnt/hdd4T/dlw_home/model_report_data/multi_modal_image_retrieval/w2v_feat_vectors/cities_instagram"
             self.cos_ascend_base_dir = r"/mnt/hdd4T/dlw_home/model_report_data/multi_modal_image_retrieval/InstaCities1M/cos_ascend"
 
-
-        self.embedding_dim = 400
+        self.backbone_type = "resnet50"
+        self.embedding_dim = 256
 
         self.ckpt_dir = r"./lfs/"
-
-        self.train_path = "image_embedding/datas/train_path.txt"
-        self.valid_path = r"image_embedding/datas/valid_path.txt"
-        self.test_path = r"image_embedding/datas/test_path.txt"
 
         self.lr = 1e-3
         self.lr_descent_rate = 0.1
@@ -53,5 +59,4 @@ class Config():
 
         self.lr_descent_every = 15
         self.epochs = 75
-        self.eval_iters_evary = 2
-
+        self.eval_iters_evary = 1
