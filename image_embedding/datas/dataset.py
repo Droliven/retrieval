@@ -56,7 +56,10 @@ class ImgDataset(Dataset):
         img_path = img_path.replace(city, osp.join(city, "img")) # 加上img文件夹前缀
 
         txt_feat_path = osp.join(self.ds_root, sample_id + ".npy")
-        txt_feat_path = txt_feat_path.replace(city, osp.join(city, "w2v_feat"))
+        # # w2v 数据
+        # txt_feat_path = txt_feat_path.replace(city, osp.join(city, "w2v_feat"))
+        # glove 数据
+        txt_feat_path = txt_feat_path.replace(city, osp.join(city, "glove_feat"))
 
         img = Image.open(img_path).convert('RGB')  # wh = 1546, 1213
         if len(np.array(img).shape) == 2:

@@ -26,7 +26,7 @@ import pprint
 newyork
 '''
 
-w2v = KeyedVectors.load_word2vec_format(os.path.join(r"E:\PythonWorkspace\multimodal_image_retrieval\text_image_retrieval\glove\glove.twitter.27B", "glove.twitter.27B.200d.txt"), binary=False)
+# w2v = KeyedVectors.load_word2vec_format(os.path.join(r"E:\PythonWorkspace\multimodal_image_retrieval\text_image_retrieval\glove\glove.twitter.27B", "glove.twitter.27B.200d.txt"), binary=False)
 
 '''
 [('microsoft', 0.7242060303688049), ('facebook', 0.7069699764251709), ('maps', 0.7004954218864441), ('app', 0.6936156153678894), ('apple', 0.6872318983078003), ('yahoo', 0.6761190891265869), ('search', 0.6709437370300293), ('youtube', 0.6569339036941528), ('apps', 0.6430841684341431), ('web', 0.6382794380187988)]
@@ -49,20 +49,19 @@ cananda
 0.648153
 cananda
 '''
+
+w2v = KeyedVectors.load_word2vec_format(os.path.join(r"E:\PythonWorkspace\multimodal_image_retrieval\text_image_retrieval\lfs", "vectors.txt"), binary=False)
 # Basic Usage
-print(w2v.most_similar("google"))
-# print(w2v.most_similar(positive=['america', 'newyork'], negative=['china'], topn=5))
-print(w2v.most_similar(positive=['beijing', 'mall'], negative=['guangzhou'], topn=5))
-print(w2v.most_similar(positive=['beijing', 'mall'], negative=['shanghai'], topn=5))
-print(w2v.most_similar(positive=['beijing', 'mall'], negative=['hangzhou'], topn=5))
-print(w2v.most_similar(positive=['actress', 'uncle'], negative=['actor'], topn=5))
+
+print(w2v.most_similar(positive=['beijing', 'park'], negative=['guangzhou'], topn=5))
+print(w2v.most_similar(positive=['shanghai', 'park'], negative=['hangzhou'], topn=5))
 
 print(w2v.most_similar('beijing'))
 print(w2v.most_similar('dog'))
 print(w2v.most_similar('building'))
 print(w2v.most_similar('coffee'))
 print(w2v.most_similar('phone'))
-print(w2v.most_similar('book'))
+print(w2v.most_similar('park'))
 
 print(w2v.similarity("beijing", "car"))
 print(w2v.similarity("beijing", "london"))

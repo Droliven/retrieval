@@ -37,9 +37,9 @@ class Config:
         elif self.platform == "dlw":
             self.device = "cuda:0"
             self.num_workers = 4
-            self.train_batch_size = 256
-            self.valid_batch_size = 256
-            self.test_batch_size = 256
+            self.train_batch_size = 128
+            self.valid_batch_size = 128
+            self.test_batch_size = 128
             self.ds_root="/mnt/hdd4T/dlw_home/model_report_data/datasets/CN_insta_50K"
             self.cos_ascend_base_dir = r"/mnt/hdd4T/dlw_home/model_report_data/multi_modal_image_retrieval/InstaCities1M/cos_ascend"
 

@@ -40,10 +40,10 @@ class InstaCities1MCorpus:
         # -- LOAD DATA FROM INSTAGRAM --
         for city in self.cities:
             print("Loading InstaCities1M data from " + city)
-            for i, file_name in tqdm(enumerate(glob.glob(os.path.join(self.instagram_text_data_path, city, "*.txt")))):
+            for i, file_name in tqdm(enumerate(glob.glob(os.path.join(self.instagram_text_data_path, city, "txt", "*.txt")))):
                 caption = ""
                 filtered_caption = ""
-                file = open(file_name, "r")
+                file = open(file_name, "r", encoding='utf-8')
                 for line in file:
                     caption = caption + line
                 # Replace hashtags with spaces
@@ -64,5 +64,16 @@ class InstaCities1MCorpus:
                 yield stopped_tokens
 
 if __name__ == '__main__':
+    import os.path as osp
+    instagram_text_data_path = osp.join(r"/mnt/hdd4T/dlw_home/model_report_data/datasets/CN_insta_50K")
+    # instagram_text_data_path = osp.join(r"E:\second_model_report_data\CN_insta_50K")
+    cities = ["beijing", "shanghai", "guangzhou", "hangzhou"]
+    # cities = ["shanghai"]
+    insta_cities_1m_corpus = InstaCities1MCorpus(instagram_text_data_path, cities)
+    tokens = []
+    for i, data in tqdm(enumerate(insta_cities_1m_corpus)):
+        tokens += data
 
-    pass
+    with open(osp.join(r"../lfs/", "glove_corpus.txt"), "w", encoding='utf-8') as f:
+        f.write(" ".join(tokens))
+
