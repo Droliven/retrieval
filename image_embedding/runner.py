@@ -20,7 +20,7 @@ from image_embedding.datas.dataset import ImgDataset
 from image_embedding.config import Config
 from torch.utils.data import DataLoader
 
-LOG_EVERY = 100
+LOG_EVERY = 40
 
 
 class EmbeddingLoss(nn.Module):
@@ -98,10 +98,10 @@ class Runner:
                 loss = self.losser(out_emb, txt_emb)
 
                 self.optimizer.zero_grad()
-                loss.backward()
+                loss.sum().backward()
                 self.optimizer.step()
 
-                loss = loss.cpu().data.numpy()
+                loss = loss.sum().cpu().data.numpy()
                 self.global_step += 1
 
                 # TODO summary
@@ -120,7 +120,7 @@ class Runner:
                     out_emb = self.model(img)
 
                     loss_eval = self.losser(out_emb, txt_emb)
-                    avg_eval_loss += loss_eval.cpu().data.numpy()
+                    avg_eval_loss += loss_eval.cpu().sum().data.numpy()
 
             avg_eval_loss = avg_eval_loss / idx
             self.writter.add_scalar('Loss/val', avg_eval_loss, epo)

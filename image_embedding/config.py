@@ -39,9 +39,8 @@ class Config:
             self.num_workers = 4
             self.train_batch_size = 256
             self.valid_batch_size = 256
-            self.test_batch_size = 128
-            self.img_base_dir = r"/mnt/hdd4T/dlw_home/model_report_data/multi_modal_image_retrieval/InstaCities1M/img_resized_1M/cities_instagram"  # 10 cities * 1e5 imgs = 1M, size=300*300
-            self.txt_embedding_base_dir = r"/mnt/hdd4T/dlw_home/model_report_data/multi_modal_image_retrieval/w2v_feat_vectors/cities_instagram"
+            self.test_batch_size = 256
+            self.ds_root="/mnt/hdd4T/dlw_home/model_report_data/datasets/CN_insta_50K"
             self.cos_ascend_base_dir = r"/mnt/hdd4T/dlw_home/model_report_data/multi_modal_image_retrieval/InstaCities1M/cos_ascend"
 
         self.backbone_type = "resnet50"
@@ -50,7 +49,7 @@ class Config:
         self.ckpt_dir = r"./lfs/"
 
         self.lr = 1e-3
-        self.lr_descent_rate = 0.1
+        self.lr_descent_rate = 0.7
         self.sgd_momentum = 0.9
 
         # self.lr_descent_every = 1e5

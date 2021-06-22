@@ -15,7 +15,8 @@ import os
 from PIL import Image
 from torchvision import transforms
 import numpy as np
-
+from PIL import ImageFile
+ImageFile.LOAD_TRUNCATED_IMAGES = True
 
 class ImgDataset(Dataset):
     def __init__(self, ds_root, split="train"):
