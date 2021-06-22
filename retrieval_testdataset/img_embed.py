@@ -19,33 +19,29 @@ import numpy as np
 import os
 from tqdm import tqdm
 
-class ImgEmbed():
+
+class ImgEmbed:
     def __init__(self):
         self.cfg = Config()
-        self.model = Embedding(self.cfg.embedding_dim)
+        self.model = Embedding(self.cfg.embedding_dim,backbone_type=self.cfg.backbone_type)
         if self.cfg.device != "cpu":
             self.model = self.model.to(self.cfg.device)
 
         model_dict = self.model.state_dict()  # 688
 
-        state = \
-        torch.load("lfs/epoch75_currloss0.6658314065760876_bestloss0.6658251436359911.pth.tar", map_location=self.cfg.device)[
-            "state_dict"]  # 344
+        state = torch.load("../lfs/best.pth.tar", map_location=self.cfg.device)["state_dict"]  # 344
         # print(state.keys())
-
         pretrained_dict = {k: v for k, v in state.items() if k in model_dict}
-
         model_dict.update(pretrained_dict)
-
         self.model.load_state_dict(model_dict)
 
-        self.test_set = ImgDataset(self.cfg.img_base_dir, self.cfg.txt_embedding_base_dir, self.cfg.test_path)
-        self.test_dataloader = DataLoader(self.test_set, batch_size=120, num_workers=self.cfg.num_workers, shuffle=False)
+        self.test_set = ImgDataset(self.cfg.ds_root, split="test")
+        self.test_dataloader = DataLoader(self.test_set, batch_size=32, num_workers=12, shuffle=False)
         print(f"test len: {self.test_set.__len__()}")
 
     def embed(self):
         # eval
-        img_embed_npy = np.zeros((self.test_set.__len__(), 400))
+        img_embed_npy = np.zeros((self.test_set.__len__(), self.cfg.embedding_dim))
         cusor = 0
         self.model.eval()
         for img, txt_emb in tqdm(self.test_dataloader):
@@ -56,10 +52,11 @@ class ImgEmbed():
                 out_emb = self.model(img)
                 out_emb = out_emb.detach().cpu().data.numpy()
 
-            img_embed_npy[cusor:cusor+img.shape[0], :] = out_emb
+            img_embed_npy[cusor:cusor + img.shape[0], :] = out_emb
             cusor = cusor + img.shape[0]
 
-        np.save(os.path.join(self.cfg.ckpt_dir, "test_img_embed.npy"), img_embed_npy)
+        np.save(os.path.join("../lfs", "test_img_embed.npy"), img_embed_npy)
+
 
 if __name__ == "__main__":
     embed = ImgEmbed()
@@ -68,7 +65,3 @@ if __name__ == "__main__":
     # test_embed = np.load("./lfs/test_img_embed.npy")
 
     pass
-
-
-
-

@@ -12,11 +12,12 @@
 import torch
 from image_embedding.nets.embedding_net import Embedding
 
-model = Embedding(400)
+model = Embedding(256, backbone_type="resnet50")
 model_dict = model.state_dict()  # 688
 print(model_dict.keys())
 
-state = torch.load("lfs/epoch75_currloss0.6658314065760876_bestloss0.6658251436359911.pth.tar", map_location="cuda:0")["state_dict"]  # 344
+# state = torch.load("lfs/epoch75_currloss0.6658314065760876_bestloss0.6658251436359911.pth.tar", map_location="cuda:0")["state_dict"]  # 344
+state = torch.load("lfs/best.pth.tar", map_location="cuda:0")["state_dict"]  # 344
 print(state.keys())
 
 pretrained_dict = {k: v for k, v in state.items() if k in model_dict}
@@ -25,7 +26,4 @@ model_dict.update(pretrained_dict)
 
 model.load_state_dict(model_dict)
 
-
 pass
-
-

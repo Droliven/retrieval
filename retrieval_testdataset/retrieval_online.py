@@ -9,13 +9,10 @@
 @time    : 2021-05-29 19:55
 '''
 
-
 import os
 import os.path as osp
 import gensim.downloader
 from gensim.models import Word2Vec
-from gensim.test.utils import datapath
-import pprint
 import string
 from stop_words import get_stop_words
 import numpy as np
@@ -23,9 +20,13 @@ import cv2
 import json
 import matplotlib.pyplot as plt
 from tqdm import tqdm
+from image_embedding.datas.dataset import ImgDataset
+from sklearn.metrics.pairwise import cosine_similarity
 
 WHITE_LIST = string.ascii_letters + string.digits + ' '
 EN_STOP = get_stop_words("en")
+
+ds_root = "/home/liuzhian/hdd4T/datasets/CN_insta_50K"
 
 
 def load_pretrained_word2vec(model_named=None):
@@ -62,9 +63,12 @@ def load_pretrained_word2vec(model_named=None):
     return w2v
 
 
-def save_dataset_doc_vector(w2v, doc, test_img_embed_base_dir, test_img_path, test_img_base, len_vec=400, tfidf_weighted=False):
+def get_most_similar_imgs(w2v, doc, test_imgs_embed, len_vec=256, sample_ids=None,
+                          tfidf_weighted=False):
     """
     基于训练好的word2vec模型，将一个doc中的所有词计算对应的特征向量，并将特征向量求平均作为doc的特征向量
+
+    然后用这个doc去检索所有test set zhong de tu pian
     :param w2v: 训练好的模型
     :type w2v: gensim.Word2Vec.wv
     :param city_root_path: 每个城市的txt文件根目录夹
@@ -81,11 +85,11 @@ def save_dataset_doc_vector(w2v, doc, test_img_embed_base_dir, test_img_path, te
     """
     w2v_vocab = set(w2v.key_to_index.keys())
 
-    new_doc=""
+    new_doc = ""
     for char in doc:
         if char in WHITE_LIST:
             new_doc += char
-    words_in=new_doc.split()
+    words_in = new_doc.split()
     words_in = [word.lower() for word in words_in]
     # Gensim simple_preproces instead tokenizer, 过滤掉太长或太短的token
     tokens = gensim.utils.simple_preprocess(" ".join(words_in))
@@ -114,65 +118,54 @@ def save_dataset_doc_vector(w2v, doc, test_img_embed_base_dir, test_img_path, te
         #     embedding += word_embedding * tok[1]
         raise NotImplementedError("暂时没实现tf-idf weighted w2v!")
 
-
     # min/max 归一化
     embedding = embedding - min(embedding)
     if max(embedding) > 0:
         embedding = embedding / max(embedding)
 
     # TODO retrieval
-    retrieval_txt_embed(test_img_embed_base_dir, test_img_path, test_img_base, embedding)
+    retrieval_txt_embed(test_imgs_embed, embedding, sample_ids)
 
 
-def dist_cosine(x, y, eps=1e-6):
-    """
-    :param x: m x k array
-    :param y: n x k array
-    :return: m x n array
-    """
-    xx = np.sum(x ** 2, axis=1) ** 0.5
-    x = x / (xx[:, np.newaxis] + eps)
-    yy = np.sum(y ** 2, axis=1) ** 0.5
-    y = y / (yy[:, np.newaxis] + eps)
-    dist = 1 - np.dot(x, y.transpose())  # 1 - 余弦距离
-    return dist
+def retrieval_txt_embed(test_imgs_embed, doc_embed, sample_ids, top_n=20):
+    cosdis = cosine_similarity(doc_embed[np.newaxis, :], test_imgs_embed)
 
+    most_similar_idxs = np.argsort(cosdis, axis=1)[0, :top_n]
+    most_similar_sample_ids = [sample_ids[idx] for idx in most_similar_idxs]
+    print(str(most_similar_sample_ids))
 
-def retrieval_txt_embed(test_img_embed_base_dir, test_img_path, test_img_base, doc_embed):
-    with open(test_img_path, 'r', encoding='utf-8') as f:
-        test_img_list = f.read().splitlines()
-        test_img_list = np.array(test_img_list)
+    imgs_res = []
+    for sample_id in most_similar_sample_ids:
+        city = sample_id.split("/")[0]
+        img_path = osp.join(ds_root, sample_id + ".jpg")
+        img_path = img_path.replace(city, osp.join(city, "img"))  # 加上img文件夹前缀
 
-    test_img_embed_all = np.load(test_img_embed_base_dir)
+        img = cv2.imread(img_path)
+        # img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        img = cv2.resize(img, (224, 224))
 
-    cosdis = dist_cosine(doc_embed[np.newaxis, :], test_img_embed_all)
-    cosdis_ascending = np.argsort(cosdis, axis=1)  # 1, 1500
-    sort_ascend = cosdis_ascending[0]
-    sort_ascend_img = list(test_img_list[sort_ascend])
+        imgs_res.append(img)
 
-    plt.figure()
-    # plt.text(20, 20, f"{id} >>> {content}")
-    for idx in range(10):
-        img = cv2.imread(os.path.join(test_img_base, sort_ascend_img[idx] + ".jpg"))
-        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-        plt.subplot(2, 5, idx + 1)
-        plt.imshow(img)
+    grid_vis = []
+    # 每行展示5张图片
+    img_vis = np.array(imgs_res)
+    for row_id in range(len(img_vis )// 5):
+        vis_row = img_vis[row_id * 5:(row_id + 1) * 5, :, :, :]
+        vis_row = np.hstack(vis_row)
+        grid_vis.append(vis_row)
 
-    plt.show()
-    plt.close()
-
-
+    grid_vis = np.vstack(grid_vis)
+    cv2.imshow("res", grid_vis)
+    cv2.waitKey(0)
 
 
 if __name__ == '__main__':
-    wv2 = load_pretrained_word2vec("../wordvec/ckpt1M/word2vec_model_instaCities1M.model")
-    test_img_embed = r"../lfs/test_img_embed.npy"
-    test_img_path = os.path.join(r"../image_embedding/datas/test_path.txt")  #
-    test_img_base = r"F:\model_report_data\multimodal_image_retrieval\InstaCities1M\test\img"
-    doc = "car"
-    while True:
-        doc = input()
-        if doc == "q":
-            break
-        save_dataset_doc_vector(wv2, doc, test_img_embed, test_img_path, test_img_base, )
+    w2v = load_pretrained_word2vec("../wordvec/ckpt/word2vec_model_CNInsta50K.model")
+    test_img_embed = np.load(r"../lfs/test_img_embed.npy")
+    ds_test = ImgDataset(ds_root="/home/liuzhian/hdd4T/datasets/CN_insta_50K", split="test")
 
+    while True:
+        docs = ['university','towel','girl','boy','bicycle']
+        for doc in docs:
+            print(doc)
+            get_most_similar_imgs(w2v, doc, test_img_embed, 256, ds_test.sample_ids)

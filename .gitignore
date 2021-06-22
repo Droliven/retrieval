@@ -6,6 +6,7 @@
 retrieval_testdataset/lfs/
 
 wordvec/ckpt1M
+wordvec/ckpt
 
 *.txt
 *.npy

@@ -176,4 +176,7 @@ if __name__ == '__main__':
     #
     # save_dataset_doc_vector(wv2, txt_root, embed_root)
 
-    retrieval_txt_embed("../lfs/test_img_embed.npy", "../image_embedding/datas/test_path.txt", "../lfs/retrieval_txt_embed", "../lfs/retrieval_cos_ascend")
+    retrieval_txt_embed("../lfs/test_img_embed.npy",
+                        "../image_embedding/datas/test_path.txt",
+                        "../lfs/retrieval_txt_embed",
+                        "../lfs/retrieval_cos_ascend")
